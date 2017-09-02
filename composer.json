@@ -1,0 +1,23 @@
+{
+    "name": "stevegrunwell/smee",
+    "type": "library",
+    "require": {
+        "symfony/console": "^3.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.3",
+        "mikey179/vfsStream": "^1.6"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Steve Grunwell",
+            "email": "steve@stevegrunwell.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Smee\\": "src/"
+        }
+    }
+}
