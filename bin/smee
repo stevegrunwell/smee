@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+
+use Smee\Console\InstallCommand;
+use Symfony\Component\Console\Application;
+
+// Locate the autoloader.
+foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
+	if (file_exists($file)) {
+		require_once $file;
+
+		break;
+	}
+}
+
+$application = new Application();
+$application->add(new InstallCommand());
+$application->run();
