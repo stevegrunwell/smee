@@ -39,6 +39,7 @@ class Project
      * Copy the hooks from the hooks directory into the local git repository.
      *
      * @throws NoGitDirectoryException   When there is no .git directory.
+     * @throws NoHooksDirectoryException When the git hooks directory is missing.
      *
      * @return array An array containing the filenames of all copied hooks.
      */
@@ -46,9 +47,12 @@ class Project
     {
         $copied = [];
 
-        // Throw an Exception if there isn't a .git directory to copy into.
+        // Throw Exceptions if either the .git or hooks directories are missing.
         if (! is_dir($this->baseDir . '/.git')) {
-            throw new NoGitDirectoryException('No .git directory was found within ' . $this->baseDir);
+            throw new NoGitDirectoryException(sprintf('No .git directory was found within %s.', $this->baseDir));
+
+        } elseif (! is_dir($this->hooksDir) || ! is_readable($this->hooksDir)) {
+            throw new NoHooksDirectoryException(sprintf('The git hooks directory at %s is inaccessible.', $this->hooksDir));
         }
 
         $contents = scandir($this->hooksDir);
