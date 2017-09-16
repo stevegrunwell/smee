@@ -7,18 +7,23 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 use Smee\Exceptions\NoGitDirectoryException;
+use Smee\Exceptions\NoHooksDirectoryException;
 use Smee\Project;
 
 class ProjectTest extends TestCase
 {
+    /**
+     * @var org\bovigo\vfs\vfsStreamDirectory
+     */
     protected $root;
 
     public function setUp()
     {
-        $this->root = vfsStream::setup('project');
-
         parent::setUp();
+
+        $this->root = vfsStream::setup('project');
     }
+
     public function testConstructor()
     {
         $project = new Project($this->root->url(), 'path/to/dir');
@@ -58,7 +63,7 @@ class ProjectTest extends TestCase
 
     public function testCopyHooksVerifiesGitDirectoryExists()
     {
-        $dir = vfsStream::create([
+        vfsStream::create([
             '.githooks' => [
                 'pre_commit' => 'pre_commit content',
             ],
@@ -70,9 +75,23 @@ class ProjectTest extends TestCase
         $project->copyHooks();
     }
 
+    public function testCopyHooksVerifiesHooksDirectoryExists()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [],
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+
+        $this->expectException(NoHooksDirectoryException::class);
+        $project->copyHooks();
+    }
+
     public function testCopyHooksIgnoresDirectories()
     {
-        $dir = vfsStream::create([
+        vfsStream::create([
             '.git' => [
                 'hooks' => [],
             ],
