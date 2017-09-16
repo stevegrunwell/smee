@@ -60,13 +60,33 @@ class ProjectTest extends TestCase
     {
         $dir = vfsStream::create([
             '.githooks' => [
-                'pre_commit'
+                'pre_commit' => 'pre_commit content',
             ],
         ]);
 
-        $this->expectException(NoGitDirectoryException::class);
         $project = new Project($this->root->url());
+
+        $this->expectException(NoGitDirectoryException::class);
         $project->copyHooks();
+    }
+
+    public function testCopyHooksIgnoresDirectories()
+    {
+        $dir = vfsStream::create([
+            '.git' => [
+                'hooks' => [],
+            ],
+            '.githooks' => [
+                'subdirectory' => [
+                    'some_file' => 'Some other file',
+                ],
+                'pre_commit' => 'pre_commit content',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+
+        $this->assertEquals(['pre_commit'], $project->copyHooks());
     }
 
     public function testStripTrailingSlashes()

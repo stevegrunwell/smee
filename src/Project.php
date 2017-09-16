@@ -39,7 +39,6 @@ class Project
      * Copy the hooks from the hooks directory into the local git repository.
      *
      * @throws NoGitDirectoryException   When there is no .git directory.
-     * @throws NoHooksDirectoryException When the specified hooks directory does not exist.
      *
      * @return array An array containing the filenames of all copied hooks.
      */
@@ -56,11 +55,13 @@ class Project
         $dest = $this->baseDir . '/.git/hooks/';
 
         foreach ($contents as $file) {
-            if (in_array($file, ['.', '..'], true)) {
+            $path = $this->hooksDir . '/' . $file;
+
+            if (is_dir($path)) {
                 continue;
             }
 
-            if (copy($this->hooksDir . '/' . $file, $dest . basename($file))) {
+            if (copy($path, $dest . basename($file))) {
                 $copied[] = $file;
             }
         }
@@ -69,23 +70,10 @@ class Project
     }
 
     /**
-     * Collect the hooks within the project's .githooks (or custom) directory.
-     *
-     * @param string $dir The .githooks directory.
-     *
-     * @return array An array of Git hooks within the directory.
-     */
-    public function getHooks($dir)
-    {
-        $hooks = glob($dir);
-
-        return $hooks;
-    }
-
-    /**
      * Remove trailing slashes from a directory name.
      *
      * @param string $path The path or URL to strip trailing slashes from.
+     *
      * @return string The $path, devoid of trailing slashes.
      */
     protected function stripTrailingSlashes($path)

@@ -2,7 +2,9 @@
 
 namespace Smee\Exceptions;
 
-class NoGitDirectoryException extends \Exception
+use Exception;
+
+class NoGitDirectoryException extends Exception
 {
 
 }
