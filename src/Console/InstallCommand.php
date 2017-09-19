@@ -3,6 +3,7 @@
 namespace Smee\Console;
 
 use Exception;
+use Smee\Exceptions\HookExistsException;
 use Smee\Project;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
