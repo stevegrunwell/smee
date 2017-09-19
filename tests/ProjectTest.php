@@ -158,6 +158,11 @@ class ProjectTest extends TestCase
         $project->copyHook('pre-commit');
 
         $this->assertEmpty($project->getCopiedHooks());
+        $this->assertContains(
+            'pre-commit',
+            $project->getSkippedHooks(),
+            'The pre-commit hook should be added to Project::$skipped.'
+        );
     }
 
     public function testCopyHookCanForceOverwrite()

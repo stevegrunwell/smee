@@ -102,6 +102,7 @@ class Project
 
             // The file exists, but it's the same as what we're about to copy.
             if (md5_file($dest) === md5_file($path)) {
+                $this->skipHook($hook);
                 return false;
             }
 
