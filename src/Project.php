@@ -89,6 +89,12 @@ class Project
         }
 
         if (file_exists($dest)) {
+
+            // The file exists, but it's the same as what we're about to copy.
+            if (md5_file($dest) === md5_file($path)) {
+                return false;
+            }
+
             $exception = new HookExistsException(sprintf('A %s hook already exists for this repository!', $hook));
             $exception->hook = $hook;
 

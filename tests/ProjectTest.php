@@ -133,6 +133,25 @@ class ProjectTest extends TestCase
         $this->fail('Did not receive expected HookExistsException.');
     }
 
+    public function testCopyHookIgnoresExistingHooksThatMatchWhatIsBeingCopied()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+        $project->copyHooks();
+
+        $this->assertEmpty($project->getCopiedHooks());
+    }
+
     public function testGetCopiedHooks()
     {
         $instance = new Project($this->root->url());
