@@ -246,6 +246,18 @@ EOT;
         $this->assertEquals($hooks, $instance->getSkippedHooks());
     }
 
+    public function testSkipHook()
+    {
+        $instance = new Project($this->root->url());
+        $hook = uniqid();
+        $property = new ReflectionProperty($instance, 'skipped');
+        $property->setAccessible(true);
+
+        $instance->skipHook($hook);
+
+        $this->assertContains($hook, $property->getValue($instance));
+    }
+
     public function testStripTrailingSlashes()
     {
         $instance = new Project($this->root->url());

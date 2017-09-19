@@ -168,6 +168,16 @@ class Project
     }
 
     /**
+     * Mark a hook to be skipped.
+     *
+     * @param string $hook The hook name to skip.
+     */
+    public function skipHook($hook)
+    {
+        $this->skipped[] = $hook;
+    }
+
+    /**
      * Remove trailing slashes from a directory name.
      *
      * @param string $path The path or URL to strip trailing slashes from.
