@@ -3,6 +3,7 @@
 namespace Smee;
 
 use Composer\Script\Event;
+use SebastianBergmann\Diff\Differ;
 use Smee\Exceptions\HookExistsException;
 use Smee\Exceptions\NoGitDirectoryException;
 use Smee\Exceptions\NoHooksDirectoryException;
@@ -105,6 +106,29 @@ class Project
         if (copy($path, $dest)) {
             $this->copied[] = $hook;
         }
+    }
+
+    public function diffHook($hook)
+    {
+        $file   = $this->hooksDir . '/' . $hook;
+        $target = $this->baseDir . '/.git/hooks/' . $hook;
+
+        return $this->diffHooks($file, $target);
+    }
+
+    /**
+     * Generate a diff between two hook files.
+     *
+     * @param string $file   The filepath to the new hook file.
+     * @param string $target The filepath to the existing hook file.
+     *
+     * @return string A human-readable diff.
+     */
+    public function diffHooks($file, $target)
+    {
+        $differ = new Differ;
+
+        return $differ->diff(file_get_contents($target), file_get_contents($file));
     }
 
     /**

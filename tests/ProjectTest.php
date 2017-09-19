@@ -172,6 +172,50 @@ class ProjectTest extends TestCase
         $this->assertEquals('new pre-commit content', file_get_contents($this->root->url() . '/.git/hooks/pre-commit'));
     }
 
+    public function testDiffHook()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'old pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'new pre-commit content',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+        $diff = <<<EOT
+-old pre-commit content
++new pre-commit content
+EOT;
+
+        $this->assertContains($diff, $project->diffHook('pre-commit'));
+    }
+
+    public function testDiffHooks()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'old pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'new pre-commit content',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+        $diff = <<<EOT
+-old pre-commit content
++new pre-commit content
+EOT;
+
+        $this->assertContains($diff, $project->diffHooks($this->root->url() . '/.githooks/pre-commit', $this->root->url() . '/.git/hooks/pre-commit'));
+    }
+
     public function testGetCopiedHooks()
     {
         $instance = new Project($this->root->url());
