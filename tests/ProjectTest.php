@@ -147,9 +147,29 @@ class ProjectTest extends TestCase
         ]);
 
         $project = new Project($this->root->url());
-        $project->copyHooks();
+        $project->copyHook('pre-commit');
 
         $this->assertEmpty($project->getCopiedHooks());
+    }
+
+    public function testCopyHookCanForceOverwrite()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'old pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'new pre-commit content',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+        $project->copyHook('pre-commit', true);;
+
+        $this->assertContains('pre-commit', $project->getCopiedHooks());
+        $this->assertEquals('new pre-commit content', file_get_contents($this->root->url() . '/.git/hooks/pre-commit'));
     }
 
     public function testGetCopiedHooks()

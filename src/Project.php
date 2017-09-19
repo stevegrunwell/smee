@@ -74,11 +74,12 @@ class Project
      *
      * @throws HookExistsException If the target hook already exists.
      *
-     * @param string $hook The name of the hook to copy from $this->hooksDir.
+     * @param string $hook  The name of the hook to copy from $this->hooksDir.
+     * @param bool   $force Force overwrite of existing hooks. Default is false.
      *
      * @return bool True if the hook was copied, false if it was ineligible to be copied.
      */
-    public function copyHook($hook)
+    public function copyHook($hook, $force = false)
     {
         $hook = basename($hook);
         $path = $this->hooksDir . '/' . $hook;
@@ -88,7 +89,7 @@ class Project
             return false;
         }
 
-        if (file_exists($dest)) {
+        if (file_exists($dest) && ! $force) {
 
             // The file exists, but it's the same as what we're about to copy.
             if (md5_file($dest) === md5_file($path)) {
