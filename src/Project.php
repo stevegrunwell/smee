@@ -89,7 +89,10 @@ class Project
         }
 
         if (file_exists($dest)) {
-            throw new HookExistsException(sprintf('A %s hook already exists for this repository!', $hook));
+            $exception = new HookExistsException(sprintf('A %s hook already exists for this repository!', $hook));
+            $exception->hook = $hook;
+
+            throw $exception;
         }
 
         if (copy($path, $dest)) {

@@ -122,8 +122,15 @@ class ProjectTest extends TestCase
 
         $project = new Project($this->root->url());
 
-        $this->expectException(HookExistsException::class);
-        $project->copyHook('pre-commit');
+        try {
+            $project->copyHook('pre-commit');
+
+        } catch (HookExistsException $e ) {
+            $this->assertEquals('pre-commit', $e->getHook());
+            return;
+        }
+
+        $this->fail('Did not receive expected HookExistsException.');
     }
 
     public function testGetCopiedHooks()
