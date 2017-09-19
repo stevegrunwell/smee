@@ -108,6 +108,14 @@ class Project
         }
     }
 
+    /**
+     * Generate a diff based on the hook name and the project configuration.
+     *
+     * @param string $hook The name of the hook file, which should exist in both .git/hooks and
+     *                     $this->hooksDir.
+     *
+     * @return string A diff of the two files.
+     */
     public function diffHook($hook)
     {
         $file   = $this->hooksDir . '/' . $hook;
