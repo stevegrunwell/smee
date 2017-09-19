@@ -134,4 +134,127 @@ class InstallCommandTest extends TestCase
             '--base-dir' => $this->root->url(),
         ]), 'Command failure should result in an exit code of 1.');
     }
+
+    /**
+     * When a hook already exists, skipping the file should leave the original un-touched.
+     */
+    public function testExecuteSkipHookExistsPrompt()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+            ],
+        ]);
+
+        $this->commandTester->setInputs(['s']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertEquals(
+            'Existing pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit')
+        );
+    }
+
+    /**
+     * After choosing to skip a collision, the process should continue to run.
+     */
+    public function testExecuteContinuesToRunAfterSkippingHook()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+                'post-commit' => 'post-commit content',
+            ],
+        ]);
+
+        $this->commandTester->setInputs(['s']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertEquals(
+            'Existing pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit')
+        );
+        $this->assertContains('post-commit', $this->commandTester->getDisplay());
+    }
+
+    /**
+     * When a hook already exists, overwriting should replace the original file.
+     */
+    public function testExecuteOverwriteHookExistsPrompt()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+            ],
+        ]);
+
+        // Overwrite the git hook.
+        $this->commandTester->setInputs(['o']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertContains('pre-commit', $this->commandTester->getDisplay());
+        $this->assertEquals(
+            'pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit')
+        );
+    }
+
+    /**
+     * Respond when a user wants a diff between the existing and new hook.
+     */
+    public function testExecuteAndShowDiff()
+    {
+        $this->markTestIncomplete('Need to determine workflow after showing a diff');
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+            ],
+        ]);
+
+        // Overwrite the git hook.
+        $this->commandTester->setInputs(['d']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertContains(
+            "-Existing pre-commit content\n+pre-commit content",
+            $this->commandTester->getDisplay(),
+            'Expected to see a diff of the two pre-commit hooks.'
+        );
+    }
 }
