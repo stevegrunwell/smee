@@ -17,6 +17,13 @@ class Project
     protected $baseDir;
 
     /**
+     * Contains an array of all Git hooks that have been copied.
+     *
+     * @var array $copied
+     */
+    protected $copied = [];
+
+    /**
      * Contains the path relative to the hooks directory, relative to the project root.
      *
      * @var string $hooksDir
@@ -46,8 +53,6 @@ class Project
      */
     public function copyHooks()
     {
-        $copied = [];
-
         // Throw Exceptions if either the .git or hooks directories are missing.
         if (! is_dir($this->baseDir . '/.git')) {
             throw new NoGitDirectoryException(sprintf('No .git directory was found within %s.', $this->baseDir));
@@ -72,11 +77,11 @@ class Project
             }
 
             if (copy($path, $hook)) {
-                $copied[] = $file;
+                $this->copied[] = $file;
             }
         }
 
-        return $copied;
+        return $this->copied;
     }
 
     /**
