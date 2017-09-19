@@ -98,6 +98,24 @@ class ProjectTest extends TestCase
         $project->copyHooks();
     }
 
+    public function testCopyHooksIgnoresHooksInSkippedArray()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit hook',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+        $project->skipHook('pre-commit');
+
+        $this->assertFalse($project->copyHook('pre-commit'));
+        $this->assertEmpty($project->getCopiedHooks());
+    }
+
     public function testCopyHookIfHookIsDirectory()
     {
         vfsStream::create([

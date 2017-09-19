@@ -94,7 +94,7 @@ class Project
         $path = $this->hooksDir . '/' . $hook;
         $dest = $this->baseDir . '/.git/hooks/' . $hook;
 
-        if (is_dir($path)) {
+        if (in_array($hook, $this->skipped, true) || is_dir($path)) {
             return false;
         }
 
