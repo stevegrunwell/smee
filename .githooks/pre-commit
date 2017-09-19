@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Verifying coding standards...\c"
+vendor/bin/phpcs --standard=phpcs.xml ./ && echo "\033[0;32mOK\033[0;m"
