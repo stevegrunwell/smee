@@ -32,6 +32,13 @@ class Project
     protected $hooksDir;
 
     /**
+     * Contains an array of all Git hooks that have been skipped.
+     *
+     * @var array $skipped
+     */
+    protected $skipped = [];
+
+    /**
      * Instantiate a new project with Smee.
      *
      * @param string $hooksDir Optional. The hooks directory, relative to the project root. Default
@@ -148,6 +155,16 @@ class Project
     public function getCopiedHooks()
     {
         return (array) $this->copied;
+    }
+
+    /**
+     * Retrieve an array of skipped hooks.
+     *
+     * @return array An array of skipped hook names.
+     */
+    public function getSkippedHooks()
+    {
+        return (array) $this->skipped;
     }
 
     /**
