@@ -57,23 +57,23 @@ class ProjectTest extends TestCase
                 'hooks' => [],
             ],
             '.githooks' => [
-                'pre_commit' => 'pre_commit content',
-                'post_commit' => 'post_commit content',
+                'pre-commit' => 'pre-commit content',
+                'post-commit' => 'post-commit content',
             ],
         ]);
 
         $project = new Project($this->root->url());
 
-        $this->assertEquals(['post_commit', 'pre_commit'], $project->copyHooks());
-        $this->assertTrue($dir->hasChild('.git/hooks/pre_commit'), 'The pre_commit hook should have been copied.');
-        $this->assertTrue($dir->hasChild('.git/hooks/post_commit'), 'The post_commit hook should have been copied.');
+        $this->assertEquals(['post-commit', 'pre-commit'], $project->copyHooks());
+        $this->assertTrue($dir->hasChild('.git/hooks/pre-commit'), 'The pre-commit hook should have been copied.');
+        $this->assertTrue($dir->hasChild('.git/hooks/post-commit'), 'The post-commit hook should have been copied.');
     }
 
     public function testCopyHooksVerifiesGitDirectoryExists()
     {
         vfsStream::create([
             '.githooks' => [
-                'pre_commit' => 'pre_commit content',
+                'pre-commit' => 'pre-commit content',
             ],
         ]);
 
@@ -105,15 +105,15 @@ class ProjectTest extends TestCase
             ],
             '.githooks' => [
                 'subdirectory' => [
-                    'some_file' => 'Some other file',
+                    'some-file' => 'Some other file',
                 ],
-                'pre_commit' => 'pre_commit content',
+                'pre-commit' => 'pre-commit content',
             ],
         ]);
 
         $project = new Project($this->root->url());
 
-        $this->assertEquals(['pre_commit'], $project->copyHooks());
+        $this->assertEquals(['pre-commit'], $project->copyHooks());
     }
 
     public function testStripTrailingSlashes()
