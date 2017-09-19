@@ -11,6 +11,13 @@ use Smee\Exceptions\NoHooksDirectoryException;
 class Project
 {
     /**
+     * File mode for copied Git hooks.
+     *
+     * To be compatible with chmod(), this should be in octal form.
+     */
+    const HOOK_FILEMODE = 0755;
+
+    /**
      * Contains the full system path to the base of the project.
      *
      * @var string $baseDir
@@ -112,12 +119,20 @@ class Project
             throw $exception;
         }
 
-        if (copy($path, $dest)) {
-            $this->copied[] = $hook;
-            return true;
+        // Temporarily hijack the error handler.
+        set_error_handler(function () {});
+        $copied = copy($path, $dest);
+        restore_error_handler();
+
+        if (! $copied) {
+            return false;
         }
 
-        return false;
+        // Set file permissions and log that the hook has been copied.
+        chmod($dest, self::HOOK_FILEMODE);
+        $this->copied[] = $hook;
+
+        return true;
     }
 
     /**

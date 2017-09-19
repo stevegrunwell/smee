@@ -138,6 +138,30 @@ class ProjectTest extends TestCase
             file_get_contents($this->root->url() . '/.git/hooks/pre-commit'),
             'The contents of pre-commit should have been copied to .git/hooks/pre-commit.'
         );
+        $this->assertTrue(
+            is_executable($this->root->url() . '/.git/hooks/pre-commit'),
+            'Project::copyHook() should ensure git hooks are executable.'
+        );
+    }
+
+    public function testCopyHookReturnsFalseIfCopyFails()
+    {
+        $dir = vfsStream::create([
+            '.git' => [
+                'hooks' => [],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit hook',
+            ],
+        ]);
+        $dir->getChild('.git')->getChild('hooks')->chmod(0444);
+
+        $project = new Project($this->root->url());
+
+        $this->assertFalse(
+            $project->copyHook('pre-commit'),
+            'The hook should not have been able to be copied, due to file permissions.'
+        );
     }
 
     public function testCopyHookIfHookIsDirectory()
