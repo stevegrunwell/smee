@@ -196,6 +196,37 @@ class InstallCommandTest extends TestCase
     }
 
     /**
+     * After choosing to overwrite a collision, the process should continue to run.
+     */
+    public function testExecuteContinuesToRunAfterOverwritingHook()
+    {
+        $dir = vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+                'post-commit' => 'post-commit content',
+            ],
+        ]);
+
+        $this->commandTester->setInputs(['o']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertEquals(
+            'pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit')
+        );
+        $this->assertTrue($dir->hasChild('.git/hooks/post-commit'));
+    }
+
+    /**
      * When a hook already exists, overwriting should replace the original file.
      */
     public function testExecuteOverwriteHookExistsPrompt()
@@ -231,7 +262,6 @@ class InstallCommandTest extends TestCase
      */
     public function testExecuteAndShowDiff()
     {
-        $this->markTestIncomplete('Need to determine workflow after showing a diff');
         vfsStream::create([
             '.git' => [
                 'hooks' => [
@@ -243,7 +273,7 @@ class InstallCommandTest extends TestCase
             ],
         ]);
 
-        // Overwrite the git hook.
+        // Show the difference between two hooks.
         $this->commandTester->setInputs(['d']);
 
         $this->commandTester->execute([
@@ -255,6 +285,78 @@ class InstallCommandTest extends TestCase
             "-Existing pre-commit content\n+pre-commit content",
             $this->commandTester->getDisplay(),
             'Expected to see a diff of the two pre-commit hooks.'
+        );
+    }
+
+    /**
+     * The user had a conflict, showed the diff, then chose to skip the hook.
+     */
+    public function testExecuteShowDiffAndSkip()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+                'post-commit' => 'post-commit content',
+            ],
+        ]);
+
+        // Show the difference between two hooks.
+        $this->commandTester->setInputs(['d'], ['s']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertEquals(
+            'Existing pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit')
+        );
+        $this->assertContains(
+            'post-commit',
+            $this->commandTester->getDisplay(),
+            'After dealing with a conflict on pre-commit, the post-commit hook should still be copied.'
+        );
+    }
+
+    /**
+     * The user had a conflict, showed the diff, then chose to overwrite the hook.
+     */
+    public function testExecuteShowDiffAndOverwrite()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+                'post-commit' => 'post-commit content',
+            ],
+        ]);
+
+        // Show the difference between two hooks.
+        $this->commandTester->setInputs(['d', 'o']);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertEquals(
+            'pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit')
+        );
+        $this->assertContains(
+            'post-commit',
+            $this->commandTester->getDisplay(),
+            'After dealing with a conflict on pre-commit, the post-commit hook should still be copied.'
         );
     }
 }

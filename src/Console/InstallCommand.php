@@ -67,16 +67,33 @@ class InstallCommand extends Command
                     $project->copyHook($e->getHook(), true);
                     break;
 
+                // Show differences, then prompt the user what to do.
                 case 'd':
                     $io->write($project->diffHook($e->getHook()));
+                    $secondAsk = $io->choice(
+                        sprintf('A %s hook already exists for this repository, how would you like to proceed?', $e->getHook()),
+                        [
+                            'o' => 'Overwrite',
+                            's' => 'Skip',
+                        ],
+                        'Skip'
+                    );
+
+                    if ('o' === $secondAsk) {
+                        $project->copyHook($e->getHook(), true);
+                    } else {
+                        $project->skipHook($e->getHook());
+                    }
                     break;
 
                 default:
-                    // Mark the current hook as skipped, then re-start the process.
                     $project->skipHook($e->getHook());
-                    $project->copyHooks();
+
                     break;
             }
+
+            // Start the process over again.
+            $project->copyHooks();
         } catch (Exception $e) {
             $io->getErrorStyle()->error(sprintf('An error occurred while copying git hooks: %s', $e->getMessage()));
             return 1;
