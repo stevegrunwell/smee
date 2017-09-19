@@ -116,6 +116,30 @@ class ProjectTest extends TestCase
         $this->assertEmpty($project->getCopiedHooks());
     }
 
+    public function testCopyHook()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit hook',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+
+        $this->assertTrue(
+            $project->copyHook('pre-commit'),
+            'Project::copyHook() should return a boolean TRUE if copy was successful.'
+        );
+        $this->assertEquals(
+            'pre-commit hook',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit'),
+            'The contents of pre-commit should have been copied to .git/hooks/pre-commit.'
+        );
+    }
+
     public function testCopyHookIfHookIsDirectory()
     {
         vfsStream::create([

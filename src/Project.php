@@ -114,7 +114,10 @@ class Project
 
         if (copy($path, $dest)) {
             $this->copied[] = $hook;
+            return true;
         }
+
+        return false;
     }
 
     /**
