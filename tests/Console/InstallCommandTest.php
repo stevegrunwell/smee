@@ -70,6 +70,23 @@ class InstallCommandTest extends TestCase
         $this->assertContains('post_commit', $output, 'Expected to see "post_commit" listed in the command output.');
     }
 
+    public function testExecuteOnlyShowsSuccessMessageIfHooksWereCopied()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [],
+            ],
+            '.githooks' => [],
+        ]);
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            '--base-dir' => $this->root->url(),
+        ]);
+
+        $this->assertEmpty($this->commandTester->getDisplay());
+    }
+
     public function testExecuteHandlesCustomHooksDirectory()
     {
         vfsStream::create([
