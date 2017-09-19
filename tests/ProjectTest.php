@@ -31,7 +31,11 @@ class ProjectTest extends TestCase
         $property = new ReflectionProperty($project, 'hooksDir');
         $property->setAccessible(true);
 
-        $this->assertEquals($this->root->url() . '/path/to/dir', $property->getValue($project), 'Project::$hooksDir should be set.');
+        $this->assertEquals(
+            $this->root->url() . '/path/to/dir',
+            $property->getValue($project),
+            'Project::$hooksDir should be set.'
+        );
     }
 
     public function testConstructorWithDefault()
@@ -40,7 +44,11 @@ class ProjectTest extends TestCase
         $property = new ReflectionProperty($project, 'hooksDir');
         $property->setAccessible(true);
 
-        $this->assertEquals($this->root->url() . '/.githooks', $property->getValue($project), 'Project::$hooksDir should default to .githooks.');
+        $this->assertEquals(
+            $this->root->url() . '/.githooks',
+            $property->getValue($project),
+            'Project::$hooksDir should default to .githooks.'
+        );
     }
 
     public function testCopyHooks()

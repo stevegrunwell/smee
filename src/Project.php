@@ -57,9 +57,10 @@ class Project
         // Throw Exceptions if either the .git or hooks directories are missing.
         if (! is_dir($this->baseDir . '/.git')) {
             throw new NoGitDirectoryException(sprintf('No .git directory was found within %s.', $this->baseDir));
-
         } elseif (! is_dir($this->hooksDir) || ! is_readable($this->hooksDir)) {
-            throw new NoHooksDirectoryException(sprintf('The git hooks directory at %s is inaccessible.', $this->hooksDir));
+            throw new NoHooksDirectoryException(
+                sprintf('The git hooks directory at %s is inaccessible.', $this->hooksDir)
+            );
         }
 
         // Read the contents of $this->hooksDir and copy them.
