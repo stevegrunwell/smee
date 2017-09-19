@@ -39,7 +39,6 @@ class InstallCommand extends Command
 
         try {
             $copied = $project->copyHooks();
-
         } catch (Exception $e) {
             $io->getErrorStyle()->error(sprintf('An error occurred while copying git hooks: %s', $e->getMessage()));
             return 1;
