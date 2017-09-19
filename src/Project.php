@@ -61,27 +61,40 @@ class Project
             throw new NoHooksDirectoryException(sprintf('The git hooks directory at %s is inaccessible.', $this->hooksDir));
         }
 
+        // Read the contents of $this->hooksDir and copy them.
         $contents = scandir($this->hooksDir);
-        $dest = $this->baseDir . '/.git/hooks/';
 
-        foreach ($contents as $file) {
-            $path = $this->hooksDir . '/' . $file;
-            $hook = $dest . basename($file);
-
-            if (is_dir($path)) {
-                continue;
-            }
-
-            if (file_exists($hook)) {
-                throw new HookExistsException(sprintf('A %s hook already exists for this repository!', $file));
-            }
-
-            if (copy($path, $hook)) {
-                $this->copied[] = $file;
-            }
-        }
+        array_map([$this, 'copyHook'], $contents);
 
         return $this->copied;
+    }
+
+    /**
+     * Copy a single hook from the local directory to .git/hooks.
+     *
+     * @throws HookExistsException If the target hook already exists.
+     *
+     * @param string $hook The name of the hook to copy from $this->hooksDir.
+     *
+     * @return bool True if the hook was copied, false if it was ineligible to be copied.
+     */
+    public function copyHook($hook)
+    {
+        $hook = basename($hook);
+        $path = $this->hooksDir . '/' . $hook;
+        $dest = $this->baseDir . '/.git/hooks/' . $hook;
+
+        if (is_dir($path)) {
+            return false;
+        }
+
+        if (file_exists($dest)) {
+            throw new HookExistsException(sprintf('A %s hook already exists for this repository!', $hook));
+        }
+
+        if (copy($path, $dest)) {
+            $this->copied[] = $hook;
+        }
     }
 
     /**

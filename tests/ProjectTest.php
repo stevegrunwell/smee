@@ -90,7 +90,7 @@ class ProjectTest extends TestCase
         $project->copyHooks();
     }
 
-    public function testCopyHooksIgnoresDirectories()
+    public function testCopyHookIfHookIsDirectory()
     {
         vfsStream::create([
             '.git' => [
@@ -100,16 +100,14 @@ class ProjectTest extends TestCase
                 'subdirectory' => [
                     'some_file' => 'Some other file',
                 ],
-                'pre_commit' => 'pre_commit content',
             ],
         ]);
 
         $project = new Project($this->root->url());
-
-        $this->assertEquals(['pre_commit'], $project->copyHooks());
+        $this->assertFalse($project->copyHook('subdirectory'), 'Project::copyHook() should return false if the hook is a directory.');
     }
 
-    public function testCopyHooksThrowsExceptionIfHookAlreadyExists()
+    public function testCopyHookThrowsExceptionIfHookAlreadyExists()
     {
         vfsStream::create([
             '.git' => [
@@ -125,7 +123,7 @@ class ProjectTest extends TestCase
         $project = new Project($this->root->url());
 
         $this->expectException(HookExistsException::class);
-        $project->copyHooks();
+        $project->copyHook('pre-commit');
     }
 
     public function testStripTrailingSlashes()
