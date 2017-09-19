@@ -98,6 +98,16 @@ class Project
     }
 
     /**
+     * Retrieve an array of copied hooks.
+     *
+     * @return array An array of copied hook names.
+     */
+    public function getCopiedHooks()
+    {
+        return (array) $this->copied;
+    }
+
+    /**
      * Remove trailing slashes from a directory name.
      *
      * @param string $path The path or URL to strip trailing slashes from.

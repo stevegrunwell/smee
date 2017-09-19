@@ -126,6 +126,17 @@ class ProjectTest extends TestCase
         $project->copyHook('pre-commit');
     }
 
+    public function testGetCopiedHooks()
+    {
+        $instance = new Project($this->root->url());
+        $hooks = [uniqid()];
+        $property = new ReflectionProperty($instance, 'copied');
+        $property->setAccessible(true);
+        $property->setValue($instance, $hooks);
+
+        $this->assertEquals($hooks, $instance->getCopiedHooks());
+    }
+
     public function testStripTrailingSlashes()
     {
         $instance = new Project($this->root->url());
