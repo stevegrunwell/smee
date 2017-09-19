@@ -3,6 +3,7 @@
 namespace Smee;
 
 use Composer\Script\Event;
+use Smee\Exceptions\HookExistsException;
 use Smee\Exceptions\NoGitDirectoryException;
 use Smee\Exceptions\NoHooksDirectoryException;
 
@@ -60,12 +61,17 @@ class Project
 
         foreach ($contents as $file) {
             $path = $this->hooksDir . '/' . $file;
+            $hook = $dest . basename($file);
 
             if (is_dir($path)) {
                 continue;
             }
 
-            if (copy($path, $dest . basename($file))) {
+            if (file_exists($hook)) {
+                throw new HookExistsException(sprintf('A %s hook already exists for this repository!', $file));
+            }
+
+            if (copy($path, $hook)) {
                 $copied[] = $file;
             }
         }

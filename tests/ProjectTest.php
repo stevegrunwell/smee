@@ -6,6 +6,7 @@ use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
+use Smee\Exceptions\HookExistsException;
 use Smee\Exceptions\NoGitDirectoryException;
 use Smee\Exceptions\NoHooksDirectoryException;
 use Smee\Project;
@@ -106,6 +107,25 @@ class ProjectTest extends TestCase
         $project = new Project($this->root->url());
 
         $this->assertEquals(['pre_commit'], $project->copyHooks());
+    }
+
+    public function testCopyHooksThrowsExceptionIfHookAlreadyExists()
+    {
+        vfsStream::create([
+            '.git' => [
+                'hooks' => [
+                    'pre-commit' => 'Existing pre-commit content',
+                ],
+            ],
+            '.githooks' => [
+                'pre-commit' => 'pre-commit content',
+            ],
+        ]);
+
+        $project = new Project($this->root->url());
+
+        $this->expectException(HookExistsException::class);
+        $project->copyHooks();
     }
 
     public function testStripTrailingSlashes()
