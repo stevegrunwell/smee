@@ -27,6 +27,11 @@
             "Smee\\": "src/"
         }
     },
+    "scripts": {
+        "post-install-cmd": [
+            "bin/smee smee:install"
+        ]
+    },
     "bin": [
         "bin/smee"
     ]
