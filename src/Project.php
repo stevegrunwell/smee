@@ -3,11 +3,20 @@
 namespace Smee;
 
 use Composer\Script\Event;
+use SebastianBergmann\Diff\Differ;
+use Smee\Exceptions\HookExistsException;
 use Smee\Exceptions\NoGitDirectoryException;
 use Smee\Exceptions\NoHooksDirectoryException;
 
 class Project
 {
+    /**
+     * File mode for copied Git hooks.
+     *
+     * To be compatible with chmod(), this should be in octal form.
+     */
+    const HOOK_FILEMODE = 0755;
+
     /**
      * Contains the full system path to the base of the project.
      *
@@ -16,11 +25,25 @@ class Project
     protected $baseDir;
 
     /**
+     * Contains an array of all Git hooks that have been copied.
+     *
+     * @var array $copied
+     */
+    protected $copied = [];
+
+    /**
      * Contains the path relative to the hooks directory, relative to the project root.
      *
      * @var string $hooksDir
      */
     protected $hooksDir;
+
+    /**
+     * Contains an array of all Git hooks that have been skipped.
+     *
+     * @var array $skipped
+     */
+    protected $skipped = [];
 
     /**
      * Instantiate a new project with Smee.
@@ -45,8 +68,6 @@ class Project
      */
     public function copyHooks()
     {
-        $copied = [];
-
         // Throw Exceptions if either the .git or hooks directories are missing.
         if (! is_dir($this->baseDir . '/.git')) {
             throw new NoGitDirectoryException(sprintf('No .git directory was found within %s.', $this->baseDir));
@@ -56,22 +77,123 @@ class Project
             );
         }
 
+        // Read the contents of $this->hooksDir and copy them.
         $contents = scandir($this->hooksDir);
-        $dest = $this->baseDir . '/.git/hooks/';
 
-        foreach ($contents as $file) {
-            $path = $this->hooksDir . '/' . $file;
+        array_map([$this, 'copyHook'], $contents);
 
-            if (is_dir($path)) {
-                continue;
-            }
+        return $this->copied;
+    }
 
-            if (copy($path, $dest . basename($file))) {
-                $copied[] = $file;
-            }
+    /**
+     * Copy a single hook from the local directory to .git/hooks.
+     *
+     * @throws HookExistsException If the target hook already exists.
+     *
+     * @param string $hook  The name of the hook to copy from $this->hooksDir.
+     * @param bool   $force Force overwrite of existing hooks. Default is false.
+     *
+     * @return bool True if the hook was copied, false if it was ineligible to be copied.
+     */
+    public function copyHook($hook, $force = false)
+    {
+        $hook = basename($hook);
+        $path = $this->hooksDir . '/' . $hook;
+        $dest = $this->baseDir . '/.git/hooks/' . $hook;
+
+        if (in_array($hook, $this->skipped, true) || is_dir($path)) {
+            return false;
         }
 
-        return $copied;
+        if (file_exists($dest) && ! $force) {
+            // The file exists, but it's the same as what we're about to copy.
+            if (md5_file($dest) === md5_file($path)) {
+                $this->skipHook($hook);
+                return false;
+            }
+
+            $exception = new HookExistsException(sprintf('A %s hook already exists for this repository!', $hook));
+            $exception->hook = $hook;
+
+            throw $exception;
+        }
+
+        // Temporarily hijack the error handler.
+        // @codingStandardsIgnoreLine
+        set_error_handler(function () {});
+        $copied = copy($path, $dest);
+        restore_error_handler();
+
+        if (! $copied) {
+            return false;
+        }
+
+        // Set file permissions and log that the hook has been copied.
+        chmod($dest, self::HOOK_FILEMODE);
+        $this->copied[] = $hook;
+
+        return true;
+    }
+
+    /**
+     * Generate a diff based on the hook name and the project configuration.
+     *
+     * @param string $hook The name of the hook file, which should exist in both .git/hooks and
+     *                     $this->hooksDir.
+     *
+     * @return string A diff of the two files.
+     */
+    public function diffHook($hook)
+    {
+        $file   = $this->hooksDir . '/' . $hook;
+        $target = $this->baseDir . '/.git/hooks/' . $hook;
+
+        return $this->diffHooks($file, $target);
+    }
+
+    /**
+     * Generate a diff between two hook files.
+     *
+     * @param string $file   The filepath to the new hook file.
+     * @param string $target The filepath to the existing hook file.
+     *
+     * @return string A human-readable diff.
+     */
+    public function diffHooks($file, $target)
+    {
+        $differ = new Differ;
+
+        return $differ->diff(file_get_contents($target), file_get_contents($file));
+    }
+
+    /**
+     * Retrieve an array of copied hooks.
+     *
+     * @return array An array of copied hook names.
+     */
+    public function getCopiedHooks()
+    {
+        return (array) $this->copied;
+    }
+
+    /**
+     * Retrieve an array of skipped hooks.
+     *
+     * @return array An array of skipped hook names.
+     */
+    public function getSkippedHooks()
+    {
+        return (array) $this->skipped;
+    }
+
+    /**
+     * Mark a hook to be skipped.
+     *
+     * @param string $hook The hook name to skip.
+     */
+    public function skipHook($hook)
+    {
+        $this->skipped[] = $hook;
     }
 
     /**
