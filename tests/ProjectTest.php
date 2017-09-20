@@ -179,7 +179,11 @@ class ProjectTest extends TestCase
         ]);
 
         $project = new Project($this->root->url());
-        $this->assertFalse($project->copyHook('subdirectory'), 'Project::copyHook() should return false if the hook is a directory.');
+
+        $this->assertFalse(
+            $project->copyHook('subdirectory'),
+            'Project::copyHook() should return false if the hook is a directory.'
+        );
     }
 
     public function testCopyHookThrowsExceptionIfHookAlreadyExists()
@@ -199,8 +203,7 @@ class ProjectTest extends TestCase
 
         try {
             $project->copyHook('pre-commit');
-
-        } catch (HookExistsException $e ) {
+        } catch (HookExistsException $e) {
             $this->assertEquals('pre-commit', $e->getHook());
             return;
         }
@@ -246,10 +249,15 @@ class ProjectTest extends TestCase
         ]);
 
         $project = new Project($this->root->url());
-        $project->copyHook('pre-commit', true);;
+
+        $project->copyHook('pre-commit', true);
 
         $this->assertContains('pre-commit', $project->getCopiedHooks());
-        $this->assertEquals('new pre-commit content', file_get_contents($this->root->url() . '/.git/hooks/pre-commit'));
+        $this->assertEquals(
+            'new pre-commit content',
+            file_get_contents($this->root->url() . '/.git/hooks/pre-commit'),
+            'If forced, the target hook should be overwritten.'
+        );
     }
 
     public function testDiffHook()
@@ -293,7 +301,13 @@ EOT;
 +new pre-commit content
 EOT;
 
-        $this->assertContains($diff, $project->diffHooks($this->root->url() . '/.githooks/pre-commit', $this->root->url() . '/.git/hooks/pre-commit'));
+        $this->assertContains(
+            $diff,
+            $project->diffHooks(
+                $this->root->url() . '/.githooks/pre-commit',
+                $this->root->url() . '/.git/hooks/pre-commit'
+            )
+        );
     }
 
     public function testGetCopiedHooks()

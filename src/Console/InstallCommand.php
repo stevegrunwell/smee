@@ -71,7 +71,10 @@ class InstallCommand extends Command
                 case 'd':
                     $io->write($project->diffHook($e->getHook()));
                     $secondAsk = $io->choice(
-                        sprintf('A %s hook already exists for this repository, how would you like to proceed?', $e->getHook()),
+                        sprintf(
+                            'A %s hook already exists for this repository, how would you like to proceed?',
+                            $e->getHook()
+                        ),
                         [
                             'o' => 'Overwrite',
                             's' => 'Skip',

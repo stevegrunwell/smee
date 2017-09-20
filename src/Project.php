@@ -106,7 +106,6 @@ class Project
         }
 
         if (file_exists($dest) && ! $force) {
-
             // The file exists, but it's the same as what we're about to copy.
             if (md5_file($dest) === md5_file($path)) {
                 $this->skipHook($hook);
@@ -120,6 +119,7 @@ class Project
         }
 
         // Temporarily hijack the error handler.
+        // @codingStandardsIgnoreLine
         set_error_handler(function () {});
         $copied = copy($path, $dest);
         restore_error_handler();
