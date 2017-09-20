@@ -16,10 +16,11 @@ install:
   - composer install --no-interaction --prefer-dist
 
 script:
-  - vendor/bin/phpunit
+  - vendor/bin/phpunit --coverage-clover clover.xml
 
 after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - ./cc-test-reporter format-coverage -t clover -o codeclimate.json
+  - ./cc-test-reporter upload-coverage -i codeclimate.json
 
 notifications:
   email: false
