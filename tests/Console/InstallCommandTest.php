@@ -43,7 +43,7 @@ class InstallCommandTest extends TestCase
         $this->app = new Application;
         $this->app->add(new InstallCommand);
 
-        $this->command = $this->app->find('smee:install');
+        $this->command = $this->app->find('install');
         $this->commandTester = new CommandTester($this->command);
     }
 
