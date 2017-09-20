@@ -1,0 +1,14 @@
+---
+engines:
+  duplication:
+    enabled: true
+  fixme:
+    enabled: true
+  phpmd:
+    enabled: true
+exclude_paths:
+  - tests/
+ratings:
+  paths:
+    - bin/**
+    - src/**
