@@ -1,0 +1,22 @@
+---
+engines:
+  duplication:
+    enabled: true
+
+  fixme:
+    enabled: true
+
+  phpmd:
+    enabled: true
+    checks:
+      # Don't get upset about $io as a variable name.
+      Naming/ShortVariable:
+        enabled: false
+
+exclude_paths:
+  - tests/
+
+ratings:
+  paths:
+    - bin/**
+    - src/**
