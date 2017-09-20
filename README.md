@@ -1,6 +1,9 @@
 # Smee
 
 [![Build Status](https://travis-ci.org/stevegrunwell/smee.svg?branch=develop)](https://travis-ci.org/stevegrunwell/smee)
+[![Code Climate](https://codeclimate.com/github/stevegrunwell/smee/badges/gpa.svg)](https://codeclimate.com/github/stevegrunwell/smee)
+[![Test Coverage](https://codeclimate.com/github/stevegrunwell/smee/badges/coverage.svg)](https://codeclimate.com/github/stevegrunwell/smee/coverage)
+[![Packagist](https://img.shields.io/packagist/v/stevegrunwell/smee.svg)](https://packagist.org/packages/stevegrunwell/smee)
 
 Smee is a Composer package designed to make it easier to share [Git hooks] with a project.
 
