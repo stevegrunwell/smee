@@ -28,6 +28,13 @@
             "Smee\\": "src/"
         }
     },
+    "archive": {
+        "exclude": [
+            "/tests",
+            "phpcs.xml",
+            "phpunit.xml"
+        ]
+    },
     "scripts": {
         "post-install-cmd": [
             "bin/smee smee:install"
