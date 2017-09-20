@@ -15,7 +15,7 @@ class InstallCommand extends Command
 {
     protected function configure()
     {
-        $this->setName('smee:install')
+        $this->setName('install')
             ->setDescription('Install git hooks for the current project.')
             ->addOption(
                 'base-dir',
