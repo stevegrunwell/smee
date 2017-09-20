@@ -37,7 +37,7 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "bin/smee smee:install"
+            "bin/smee install"
         ],
         "test-coverage": [
             "phpunit --coverage-html tests/coverage"

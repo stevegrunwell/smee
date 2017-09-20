@@ -28,7 +28,7 @@ To ensure Smee is automatically run for other users, add Smee to the "post-insta
 {
     "scripts": {
         "post-install-cmd": [
-            "smee smee:install"
+            "smee install"
         ]
     }
 }
