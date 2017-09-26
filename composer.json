@@ -28,6 +28,12 @@
             "Smee\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Smee\\": "src/",
+            "Smee\\Tests\\": "tests/"
+        }
+    },
     "archive": {
         "exclude": [
             "/tests",

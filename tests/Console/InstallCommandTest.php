@@ -5,47 +5,18 @@ namespace Smee\Tests\Console;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 use Smee\Console\InstallCommand;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
+use Smee\Tests\Console\CommandTestTrait;
 
 class InstallCommandTest extends TestCase
 {
-    /**
-     * @var Symfony\Component\Console\Application
-     */
-    protected $app;
+    use CommandTestTrait;
 
     /**
-     * @var Smee\Console\InstallCommand
+     * A reference to the class name that powers the command being tested.
+     *
+     * @var string $commandClass
      */
-    protected $command;
-
-    /**
-     * @var Symfony\Component\Console\Tester\CommandTester
-     */
-    protected $commandTester;
-
-    /**
-     * @var org\bovigo\vfs\vfsStreamDirectory
-     */
-    protected $root;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->root = vfsStream::setup('project');
-
-        /*
-         * Create a shared instance of the application, along with a reference to the
-         * 'smee:install' command.
-         */
-        $this->app = new Application;
-        $this->app->add(new InstallCommand);
-
-        $this->command = $this->app->find('install');
-        $this->commandTester = new CommandTester($this->command);
-    }
+    protected $commandClass = InstallCommand::class;
 
     public function testExecute()
     {
